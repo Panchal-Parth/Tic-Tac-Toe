@@ -8,7 +8,6 @@ This Python program implements a 4x4 Tic-Tac-Toe game where two players can take
 2. [Prerequisites](#prerequisites)
 3. [Setup](#setup)
 4. [How to Play](#how-to-play)
-5. [License](#license)
 
 ## Overview
 
