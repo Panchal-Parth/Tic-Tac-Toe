@@ -37,3 +37,7 @@ To run this game, you need:
 - Enter the row and column numbers where you want to place your mark ('X' or 'O').
 - The game checks after each move for winning combinations.
 - The game ends when one player wins or when all positions are filled without a winner, resulting in a tie.
+
+## Find a bug?
+   If you found an issue and would like to submit an improvement to this project to this project, please submit an issue using the issues tab above. If you would like to submit a PR with a fix, reference the 
+   issue you created!
