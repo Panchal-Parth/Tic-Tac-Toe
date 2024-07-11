@@ -22,3 +22,5 @@ To run this game, you need:
 ## Setup
 
 1. **Clone the repository:**
+   'git clone https://github.com/Panchal-Parth/Tic-Tac-Toe.git
+    cd Tic-Tac-Toe'
