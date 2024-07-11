@@ -22,7 +22,19 @@ To run this game, you need:
 ## Setup
 
 1. **Clone the repository:**
-   '''
+   ```
    git clone https://github.com/Panchal-Parth/Tic-Tac-Toe.git
    cd Tic-Tac-Toe
-   '''
+   ```
+
+2. **Run the game:**
+   ```
+   python tictactoe.py
+   ```
+
+## How to Play
+
+- Each player takes turns to enter their move.
+- Enter the row and column numbers where you want to place your mark ('X' or 'O').
+- The game checks after each move for winning combinations.
+- The game ends when one player wins or when all positions are filled without a winner, resulting in a tie.
