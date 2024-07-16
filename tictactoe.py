@@ -45,157 +45,98 @@ class TicTacToeGame:
     #
     # Parameters:
     # players: tuple - A tuple of Player 
-    # board_size: int - The size of the board 
+    # boardSize: int - The size of the board 
     #
     # Returns: None
     ############################################
-    def __init__(self, players=DEFAULT_PLAYERS, board_size=BOARD_SIZE):
+    def __init__(self, players=DEFAULT_PLAYERS, boardSize=BOARD_SIZE):
         self._players = cycle(players)
-        self.board_size = board_size
-        self.current_player = next(self._players)
-        self.winner_combo = []
-        self._current_moves = []
-        self._has_winner = False
-        self._winning_combos = []
-        self._setup_board()
-
-    ################ _setup_board ###############
-    # Sets up the initial state of the game board.
-    #
-    # Parameters: None
-    #
-    # Returns: None
-    ############################################
-    def _setup_board(self):
-        self._current_moves = [
-            [Move(row, col) for col in range(self.board_size)]
-            for row in range(self.board_size)
+        self.boardSize = boardSize
+        self.currentPlayer = next(self._players)
+        self._currentMoves = [
+            [Move(row, col) for col in range(self.boardSize)]
+            for row in range(self.boardSize)
         ]
-        self._winning_combos = self._get_winning_combos()
+        self._winningCombos = self._getWinningCombos()
+        self._hasWinner = False
+        self.winnerCombo = []
 
-    ########## _get_winning_combos ##############
+    ########## _getWinningCombos ##############
     # Defines all possible winning combinations.
     #
     # Parameters: None
     #
     # Returns: list - A list of winning combinations.
     ############################################
-    def _get_winning_combos(self):
+    def _getWinningCombos(self):
         rows = [
             [(move.row, move.col) for move in row]
-            for row in self._current_moves
+            for row in self._currentMoves
         ]
         
         columns = [
             [(move.row, move.col) for move in col]
-            for col in zip(*self._current_moves)
+            for col in zip(*self._currentMoves)
         ]
         
-        first_diagonal = [(row, row) for row in range(self.board_size)]
+        firstDiagonal = [(row, row) for row in range(self.boardSize)]
         
-        second_diagonal = [(row, self.board_size - 1 - row) for row in range(self.board_size)]
+        secondDiagonal = [(row, self.boardSize - 1 - row) for row in range(self.boardSize)]
         
-        winning_combos = rows + columns + [first_diagonal, second_diagonal]
-        
-        two_by_twos = []
-        for row in range(self.board_size - 1):
-            for col in range(self.board_size - 1):
-                two_by_twos.append([
+        twoByTwos = []
+        for row in range(self.boardSize - 1):
+            for col in range(self.boardSize - 1):
+                twoByTwos.append([
                     (row, col), (row, col+1),
                     (row+1, col), (row+1, col+1)
                 ])
-        winning_combos.extend(two_by_twos)
         
         corners = [
-            (0, 0), (0, self.board_size - 1),
-            (self.board_size - 1, 0), (self.board_size - 1, self.board_size - 1)
+            (0, 0), (0, self.boardSize - 1),
+            (self.boardSize - 1, 0), (self.boardSize - 1, self.boardSize - 1)
         ]
-        winning_combos.append(corners)
+
+        winningCombos = rows + columns + [firstDiagonal, secondDiagonal] + twoByTwos + [corners]
         
-        return winning_combos
+        return winningCombos
 
-    ############# is_valid_move #################
-    # Checks if a move is valid.
+    ################ checkWinner #################
+    # Checks if there's a winner.
     #
-    # Parameters:
-    # move: Move - The move to check.
+    # Parameters: None
     #
-    # Returns: bool - True if the move is valid, False otherwise.
+    # Returns: bool - True if there's a winner, False otherwise.
     #############################################
-    def is_valid_move(self, move):
-        row, col = move.row, move.col
-        move_was_not_played = self._current_moves[row][col].label == ""
-        no_winner = not self._has_winner
-        return no_winner and move_was_not_played
+    def checkWinner(self):
+        for combo in self._winningCombos:
+            results = set(self._currentMoves[n][m].label for n, m in combo)
+            if len(results) == 1 and "" not in results:
+                self._hasWinner = True
+                self.winnerCombo = combo
+                return True
+        return False
 
-    ############### process_move ################
-    # Processes a move and checks for a winner.
-    #
-    # Parameters:
-    # move: Move - The move to process.
-    #
-    # Returns: None
-    ############################################
-    def process_move(self, move):
-        row, col = move.row, move.col
-        self._current_moves[row][col] = move
-        for combo in self._winning_combos:
-            results = set(self._current_moves[n][m].label for n, m in combo)
-            is_win = (len(results) == 1) and ("" not in results)
-            if is_win:
-                self._has_winner = True
-                self.winner_combo = combo
-                break
-    
-    ################ has_winner ################
-    # Returns whether the game has a winner.
+    ############### anyMovesLeft #################
+    # Checks if there are any moves left.
     #
     # Parameters: None
     #
-    # Returns: bool - True if the game has a winner, False otherwise.
-    ############################################
-    def has_winner(self):
-        return self._has_winner
+    # Returns: bool - True if there are moves left, False otherwise.
+    ##############################################
+    def anyMovesLeft(self):
+        return any(move.label == "" for row in self._currentMoves for move in row)
 
-    ################### is_tied ################
-    # Returns whether the game is tied.
+    ################ isGameOver ##################
+    # Checks if the game is over.
     #
     # Parameters: None
     #
-    # Returns: bool - True if the game is tied, False otherwise.
-    ############################################
-    def is_tied(self):
-        no_winner = not self._has_winner
-        played_moves = (
-            move.label for row in self._current_moves for move in row
-        )
-        return no_winner and all(played_moves)
+    # Returns: bool - True if the game is over, False otherwise.
+    ##############################################
+    def isGameOver(self):
+        return self._hasWinner or not self.anyMovesLeft()
 
-    ################ toggle_player #############
-    # Switches to the next player.
-    #
-    # Parameters: None
-    #
-    # Returns: None
-    ############################################
-    def toggle_player(self):
-        self.current_player = next(self._players)
-
-    ################ reset_game ################
-    # Resets the game state to play again.
-    #
-    # Parameters: None
-    #
-    # Returns: None
-    ############################################
-    def reset_game(self):
-        for row, row_content in enumerate(self._current_moves):
-            for col, _ in enumerate(row_content):
-                row_content[col] = Move(row, col)
-        self._has_winner = False
-        self.winner_combo = []
-
-############### print_board ################
+############### printBoard ##################
 # Prints the current state of the game board to the console.
 #
 # Parameters:
@@ -203,72 +144,72 @@ class TicTacToeGame:
 #
 # Returns: None
 ############################################
-def print_board(game):
+def printBoard(game):
     os.system('cls' if os.name == 'nt' else 'clear')  # Clear console screen
     print("Press 'q' to quit at any time.")
     print("Welcome to 4x4 Tic-Tac-Toe!")
-    print(f"Player {game.current_player.label}'s last move")
-    print("   " + "   ".join(str(i) for i in range(game.board_size)))
-    print("  " + "----" * game.board_size + "-")
-    for i, row in enumerate(game._current_moves):
-        row_str = f"{i} | " + " | ".join(move.label if move.label else " " for move in row) + " |"
-        print(row_str)
-        print("  " + "----" * game.board_size + "-")
+    print(f"Player {game.currentPlayer.label}'s turn")
+    print("   " + "   ".join(str(i) for i in range(game.boardSize)))
+    print("  " + "----" * game.boardSize + "-")
+    for i, row in enumerate(game._currentMoves):
+        rowStr = f"{i} | " + " | ".join(move.label if move.label else " " for move in row) + " |"
+        print(rowStr)
+        print("  " + "----" * game.boardSize + "-")
     print()
 
-############### get_user_input ##############
+############### getUserInput #################
 # Get the input from user and validates it
 #
 # Parameters: 
 # prompt: str
-# valid_values: str
+# validValues: list
 #
 # Returns: 
-# user_input: int
-############################################
-def get_user_input(prompt, valid_values):
+# user_input: int if a valid input is provided otherwise it will quit
+#############################################
+def getUserInput(prompt, validValues):
     while True:
-        user_input = input(prompt).strip()  # Strip whitespace from input
-        if user_input.lower() == 'q':
+        userInput = input(prompt).strip()  # Strip whitespace from input
+        if userInput.lower() == 'q':
             print("Quitting the game...")
             exit()
-        elif user_input.isdigit() and int(user_input) in valid_values:
-            return int(user_input)
+        elif userInput.isdigit() and int(userInput) in validValues:
+            return int(userInput)
         else:
             print("Invalid input! Please enter a number from the valid range.")
 
 ################### main ###################
-# Create the game and run it in the console.
+# Create the game and run it.
 #
 # Parameters : None
 #
 # Returns: None
 ############################################
 def main():
-    
     game = TicTacToeGame()
-    print_board(game)
+    printBoard(game)
 
-    while not game.has_winner() and not game.is_tied():
-        row = get_user_input(f"Player {game.current_player.name} - {game.current_player.label}, enter row (0-{game.board_size-1}) or 'q' to quit: ", list(range(game.board_size)))
-        if isinstance(row, str):
-            print("Invalid move! Try again.")
-            continue
-        col = get_user_input(f"Player {game.current_player.name} - {game.current_player.label}, enter column (0-{game.board_size-1}) or 'q' to quit: ", list(range(game.board_size)))
-        if isinstance(col, str):
-            print("Invalid move! Try again.")
-            continue
+    while not game.isGameOver():
+        row = getUserInput(
+            f"Player {game.currentPlayer.name} - {game.currentPlayer.label}, enter row (0-{game.boardSize-1}) or 'q' to quit: ",
+            list(range(game.boardSize))
+        )
+        col = getUserInput(
+            f"Player {game.currentPlayer.name} - {game.currentPlayer.label}, enter column (0-{game.boardSize-1}) or 'q' to quit: ",
+            list(range(game.boardSize))
+        )
         
-        move = Move(row, col, game.current_player.label)
-        if game.is_valid_move(move):
-            game.process_move(move)
-            print_board(game)
-            if game.has_winner():
-                print(f"Player {game.current_player.name} - {game.current_player.label} wins!")
-            elif game.is_tied():
+        move = Move(row, col, game.currentPlayer.label)
+        if game._currentMoves[row][col].label == "":
+            game._currentMoves[row][col] = move
+            printBoard(game)
+            if game.checkWinner():
+                print(f"Player {game.currentPlayer.name} - {game.currentPlayer.label} wins!")
+                break
+            elif not game.anyMovesLeft():
                 print("It's a tie!")
-            else:
-                game.toggle_player()
+                break
+            game.currentPlayer = next(game._players)
         else:
             print("Invalid move! Try again.")
 
