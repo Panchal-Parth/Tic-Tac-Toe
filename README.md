@@ -28,7 +28,7 @@ To run this game, you need:
 
 2. **Run the game:**
    ```
-   python tictactoe.py
+   python tic-tac-toe.py
    ```
 
 ## How to Play
